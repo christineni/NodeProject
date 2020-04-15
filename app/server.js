@@ -38,7 +38,7 @@ let db = mongoose.connection;
 
 // Adds a listener function to the end of the listeners array for error event. 
 db.on('connected', function () {
-    logger.info("Mongoose default connection is open to ");
+    logger.info("connection opened");
 });
 
 db.on('error', function (err) {
