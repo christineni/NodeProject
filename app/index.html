@@ -1,0 +1,28 @@
+<html>
+
+<head></head>
+
+<body>
+    <div>
+        <form action="http://localhost:3000/app/post_categories" method="POST">
+            Category Name: <input type="text" name="categoryAlias"> <br>
+            Locale: <input type="text" name="locale">
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+    <div>
+        <form action="http://localhost:3000/app/get_categories" method="POST">
+            <input type="submit" value="Get Categories">
+        </form>
+    </div>
+    <div>
+        <form action="http://localhost:3000/app/update_categories" method="POST">
+            Category Name: <input type="text" name="categoryAlias"> <br>
+            Add country code to whitelist: <input type="text" name="country_whitelist">
+            Add country code to blacklist: <input type="text" name="country_blacklist">
+            <input type="submit" value="Update">
+        </form>
+    </div>
+</body>
+
+</html>
