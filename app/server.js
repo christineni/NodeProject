@@ -20,80 +20,80 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 const logger = winston.createLogger({
-    format: winston.format.json(),
+    format: winston.format.combine(
+        winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
+        winston.format.json()
+    ),
     transports: [
         new winston.transports.File({ filename: 'combined.log' }),
         new winston.transports.File({ filename: 'error.log', level: 'error' })
     ]
-    // ,
-    // exceptionHandlers: [
-    //     new winston.transports.File({ filename: 'exceptions.log' })
-    // ]
 });
 
-// Connect to MongoDB - Yelp DB
+// Connect to MongoDB - localhost
 mongoose.connect('mongodb://localhost/yelp', { useUnifiedTopology: true, useNewUrlParser: true });
+
+// Connect to MongoDB - docker
+// mongoose.connect('mongodb://mongo/yelp', { useUnifiedTopology: true, useNewUrlParser: true });
 
 let db = mongoose.connection;
 
-// Adds a listener function to the end of the listeners array for error event. 
 db.on('connected', function () {
     logger.info("connection opened");
 });
 
 db.on('error', function (err) {
-    // handle error on initial connnect
-    logger.error('connect error', err)
+    logger.error('connect error: ', err)
 });
 
-// Adds a one-time listener function for when the db is opened.
 db.once('open', function () {
+    // Get category from Yelp Categories API and insert category to db 
     app.post('/app/post_categories', function (req, res) {
         let params = {
             categoryAlias: req.body.categoryAlias,
             locale: req.body.locale
         };
-        logger.info('post_categories', req, response);
+        logger.info('post_categories');
         client.categoriesSearch(params.categoryAlias, params.locale).then(response => {
             let data = response.jsonBody;
             db.collection('categories').insertOne(data, function (err) {
                 if (err) throw err;
-                db.close();
                 res.send('Record inserted: \n' + JSON.stringify(data));
             });
         }).catch((err) => {
-            logger.error('post_categories', err);
-            res.send('Record inserted: \n' + JSON.stringify(err));
+            logger.error('post_categories: ', err);
+            res.send('Error inserting record: \n' + JSON.stringify(err));
         });
     });
 
+    // Get all categories that have been added to mongodb
     app.post('/app/get_categories', async function (_, res) {
+        logger.info('get_categories');
         try {
-            logger.info('get_categories', _, res);
-            db.collection('categories').find({}).toArray(function (err, response) {
-                if (err) throw err;
-                db.close();
-                res.send(response);
-            })
+            if (res.statusCode === 200) {
+                db.collection('categories').find({}).toArray(function (err, response) {
+                    if (err) throw err;
+                    res.send(response);
+                })
+            }
         } catch (err) {
-            logger.error('get_categories', err);
+            logger.error('Error retrieving categories: \n' + JSON.stringify(err));
         }
     });
 
+    // Find category in db and update the whitelist/blacklist countries if exist
     app.post('/app/update_categories', async function (req, res) {
         let params = {
             categoryAlias: req.body.categoryAlias,
             country_whitelist: req.body.country_whitelist,
             country_blacklist: req.body.country_blacklist,
         };
-
+        logger.info('update_categories');
         try {
-            logger.info('update_categories', req, res);
             if (params.country_blacklist === (null || undefined || '')) {
                 db.collection('categories').findOneAndUpdate({ 'category.alias': params.categoryAlias }, { $push: { 'category.country_whitelist': params.country_whitelist } },
                     { returnOriginal: false, upsert: true }, function (err, response) {
                         if (err) throw err;
-                        db.close();
                         res.send('Record updated: \n' + JSON.stringify(response));
                     })
             }
@@ -101,7 +101,6 @@ db.once('open', function () {
                 db.collection('categories').findOneAndUpdate({ 'category.alias': params.categoryAlias }, { $push: { 'category.country_blacklist': params.country_blacklist } },
                     { returnOriginal: false, upsert: true }, function (err, response) {
                         if (err) throw err;
-                        db.close();
                         res.send('Record updated: \n' + JSON.stringify(response));
                     })
             }
@@ -109,13 +108,12 @@ db.once('open', function () {
                 db.collection('categories').findOneAndUpdate({ 'category.alias': params.categoryAlias }, { $push: { 'category.country_whitelist': params.country_whitelist, 'category.country_blacklist': params.country_blacklist } },
                     { returnOriginal: false, upsert: true }, function (err, response) {
                         if (err) throw err;
-                        db.close();
                         res.send('Record updated: \n' + JSON.stringify(response));
                     })
             }
         }
         catch (err) {
-            logger.error('update_categories', err);
+            logger.error('Error updating category: \n' + JSON.stringify(err));
         };
     });
 

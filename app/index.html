@@ -1,28 +1,110 @@
-<html>
+<!DOCTYPE html>
 
-<head></head>
+<head>
+    <title>Christine Ni's NodeJS App</title>
+    <style>
+        body,
+        div {
+            width: 100%;
+            margin: auto;
+            text-align: center;
+        }
+
+        body {
+            background-image: linear-gradient(90deg, #020024 0%, #56569f 1%, #83c1cd 75%);
+        }
+
+        h3 {
+            margin: auto auto 20px;
+        }
+
+        input[type=text] {
+            font-family: Poppins-Regular;
+            font-size: 15px;
+            color: rgb(0, 0, 0);
+            line-height: 1.2;
+            width: 80%;
+            height: 45px;
+            padding: 0px 5px;
+        }
+
+        input[type=submit] {
+            font-family: Poppins-Medium;
+            font-size: 15px;
+            min-width: 120px;
+            height: 40px;
+            border-radius: 25px;
+            padding: 10px;
+            background: #56569f;
+            color: #ffffff;
+        }
+
+        div.forms {
+            margin: 30px auto;
+            width: 50%;
+            background-color: #fafafa;
+            padding: 20px;
+            border: 1px #000000 solid;
+            border-radius: 10px;
+        }
+
+        div.text-input-wrapper {
+            margin: 20px auto;
+        }
+    </style>
+</head>
 
 <body>
     <div>
-        <form action="http://localhost:3000/app/post_categories" method="POST">
-            Category Name: <input type="text" name="categoryAlias"> <br>
-            Locale: <input type="text" name="locale">
-            <input type="submit" value="Submit">
-        </form>
+        <div class="forms">
+            <h3>Get Category from Yelp Categories API</h3>
+            <div>
+                <form action="http://localhost:3000/app/post_categories" method="POST">
+                    <div class="text-input-wrapper">
+                        <input type="text" name="categoryAlias" placeholder="Enter Category Name...">
+                    </div>
+                    <div class="text-input-wrapper">
+                        <input type="text" name="locale" placeholder="Enter Locale...">
+                    </div>
+                    <div>
+                        <input type="submit" value="Submit">
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
     <div>
-        <form action="http://localhost:3000/app/get_categories" method="POST">
-            <input type="submit" value="Get Categories">
-        </form>
-    </div>
-    <div>
-        <form action="http://localhost:3000/app/update_categories" method="POST">
-            Category Name: <input type="text" name="categoryAlias"> <br>
-            Add country code to whitelist: <input type="text" name="country_whitelist">
-            Add country code to blacklist: <input type="text" name="country_blacklist">
-            <input type="submit" value="Update">
-        </form>
-    </div>
+        <div class="forms">
+            <h3>Get all categories existing in database</h3>
+            <div>
+                <form action="http://localhost:3000/app/get_categories" method="POST">
+                    <input type="submit" value="Get Categories">
+                </form>
+            </div>
+        </div>
+        <div>
+            <div class="forms">
+                <h3>Find category from database and add country whitelist/blacklist</h3>
+                <div>
+                    <form action="http://localhost:3000/app/update_categories" method="POST">
+                        <div class="text-input-wrapper">
+                            <input type="text" name="categoryAlias" placeholder="Enter Category Name...">
+                        </div>
+                        <div class="text-input-wrapper">
+                            <input type="text" name="country_whitelist"
+                                placeholder="Enter country code to add to whitelist...">
+                        </div>
+                        <div class="text-input-wrapper">
+                            <input type="text" name="country_blacklist"
+                                placeholder="Enter country code to add to blacklist...">
+                        </div>
+                        <div>
+                            <input type="submit" value="Update">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
 </body>
 
 </html>
